@@ -1,5 +1,6 @@
 package smartGroups;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.json.JSONObject;
 
@@ -37,12 +38,18 @@ public class smartGroups {
 		}*/
 		
 	//	System.out.print(briggsMatch.briggsScore("ENTJ","ESTJ"));
-		JSONObject groupJSON = new JSONObject();
+		HashMap groupJSON = new HashMap();
 		groupJSON.put("JEROME CHEN", "ENFJ");
-		groupJSON.put("JOHN LEE", "ISFJ");
+		//able to show one person can bring score down vs. another
+		//groupJSON.put("JOHN LELE", "ISFJ");
+		groupJSON.put("JOHN LEE", "ENFP");
 		groupJSON.put("TIM SMITH", "ENTJ");
 		groupJSON.put("RICHARD TONG", "INFP");
+		groupJSON.put("RICHARD SONG", "INFJ");
+		//System.out.print(briggsMatch.groupBriggsScore(groupJSON));
 		
+		//System.out.print((float) groupJSON.size() / (float) 3);
+		//System.out.print(briggsMatch.combo(3));
 		System.out.print(briggsMatch.groupBriggsScore(groupJSON));
 	}
 

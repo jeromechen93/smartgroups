@@ -1,6 +1,10 @@
 package smartGroups;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+
 import org.json.*;
 
 
@@ -406,13 +410,41 @@ public class briggsMatch {
 		return score;
 	}
 	
+	public static int combo (int inSize) {
+		int total = 0;
+		int size = inSize -1;
+		while (size>0) {
+			total+=size;
+			size--;
+		}
+		return total;
+	}
 	
-	public static int groupBriggsScore (JSONObject groupJSON) {
+	
+	public static float groupBriggsScore (HashMap groupMap) {
 		int groupTotalScore = 0;
-		int countOfJSON = 0;
-		JSONArray JSONKeys = groupJSON.names();
+		
+		List groupKeySet = new ArrayList(groupMap.keySet());
+		
+		int countOfKeys = groupKeySet.size();
+		int comboDivider = briggsMatch.combo(countOfKeys);
+		
+		
+		int offset = 1;
 
-		System.out.print(JSONKeys.opt(0));
-		return groupTotalScore;
+		for (int i=0;i<countOfKeys;i++) {
+			for (int j=offset;j<countOfKeys;j++) {
+				String briggs1 = (String) groupMap.get(groupKeySet.get(i));
+				String briggs2 = (String) groupMap.get(groupKeySet.get(j));
+				int currentScore = briggsMatch.briggsScore(briggs1,briggs2).intValue();
+				groupTotalScore += currentScore;
+				System.out.println(briggs1+briggs2+currentScore);
+			}
+			offset++;
+		}
+		//With more people, it is much greater of a combo divider. 
+		float groupAverageScore = (float) groupTotalScore / comboDivider;
+		
+		return groupAverageScore;
 	}
 }

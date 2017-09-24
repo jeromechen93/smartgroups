@@ -22,11 +22,11 @@ public class briggsMatch {
 		Possible Match: 30
 		Bad Match: 0		
 		*/
-		Integer idealScore = new Integer(100);
-		Integer goodScore = new Integer(80);
-		Integer okScore = new Integer(60);
-		Integer possibleScore = new Integer(30);
-		Integer badScore = new Integer(0);
+		Integer idealScore = new Integer(10);
+		Integer goodScore = new Integer(8);
+		Integer okScore = new Integer(6);
+		Integer possibleScore = new Integer(4);
+		Integer badScore = new Integer(2);
 		
 		String[] briggsIterate = briggsList;
 		JSONObject perBriggsJSON = new JSONObject();
@@ -403,14 +403,14 @@ public class briggsMatch {
 	
 	
 	
-	public static Integer briggsScore (String briggs1, String briggs2) {
+	public static Integer getPairBriggsScore (String briggs1, String briggs2) {
 		Integer score = null;
 		
 		score = (Integer) briggsMatch.briggsReturn(briggs1).get(briggs2); 
 		return score;
 	}
 	
-	public static int combo (int inSize) {
+	public static int getGroupComboBySize (int inSize) {
 		int total = 0;
 		int size = inSize -1;
 		while (size>0) {
@@ -421,21 +421,21 @@ public class briggsMatch {
 	}
 	
 	
-	public static float groupBriggsAverageScore (HashMap groupMap) {
+	public static float getPopBriggsMeanScoreByBriggsMap (HashMap briggsMap) {
 		//input looks like JEROME CHEN=ENFJ
 		int groupTotalScore = 0;
 		
-		List groupKeySet = new ArrayList(groupMap.keySet());
+		List groupKeySet = new ArrayList(briggsMap.keySet());
 		int countOfKeys = groupKeySet.size();
-		int comboDivider = briggsMatch.combo(countOfKeys);
+		int comboDivider = briggsMatch.getGroupComboBySize(countOfKeys);
 		
 		int offset = 1;
 
 		for (int i=0;i<countOfKeys;i++) {
 			for (int j=offset;j<countOfKeys;j++) {
-				String briggs1 = (String) groupMap.get(groupKeySet.get(i));
-				String briggs2 = (String) groupMap.get(groupKeySet.get(j));
-				int currentScore = briggsMatch.briggsScore(briggs1,briggs2).intValue();
+				String briggs1 = (String) briggsMap.get(groupKeySet.get(i));
+				String briggs2 = (String) briggsMap.get(groupKeySet.get(j));
+				int currentScore = briggsMatch.getPairBriggsScore(briggs1,briggs2).intValue();
 				groupTotalScore += currentScore;
 			}
 			offset++;
@@ -446,55 +446,55 @@ public class briggsMatch {
 		return groupAverageScore;
 	}
 
-	public static HashMap groupBrigggsPairScores(HashMap groupMap) {
-		HashMap finalJSON = new HashMap();
+	public static HashMap getPairBriggsScoresFromBriggsMap(HashMap briggsMap) {
+		HashMap finalMap = new HashMap();
 
-		List groupKeySet = new ArrayList(groupMap.keySet());
+		List groupKeySet = new ArrayList(briggsMap.keySet());
 
 		int countOfKeys = groupKeySet.size();
-		int comboDivider = briggsMatch.combo(countOfKeys);
+		int comboDivider = briggsMatch.getGroupComboBySize(countOfKeys);
 
 		int offset = 1;
 
 		for (int i=0;i<countOfKeys;i++) {
 			for (int j=offset;j<countOfKeys;j++) {
 				String person1 = (String) groupKeySet.get(i);
-				String briggs1 = (String) groupMap.get(groupKeySet.get(i));
+				String briggs1 = (String) briggsMap.get(groupKeySet.get(i));
 				String person2 = (String) groupKeySet.get(j);
-				String briggs2 = (String) groupMap.get(groupKeySet.get(j));
+				String briggs2 = (String) briggsMap.get(groupKeySet.get(j));
 
 				String pair = person1 + "(" + briggs1 + ")" + "$" + person2 + "(" + briggs2 + ")";
-				Integer pairScore = briggsMatch.briggsScore(briggs1,briggs2);
-				finalJSON.put(pair,pairScore);
+				Integer pairScore = briggsMatch.getPairBriggsScore(briggs1,briggs2);
+                finalMap.put(pair,pairScore);
 			}
 			offset++;
 		}
 
-		return finalJSON;
+		return finalMap;
 	}
 
-	public static float getGroupAverageBriggsFromScoresMap(HashMap groupScoresMap) {
+	public static float getMeanBriggsScoreFromScoreMap(HashMap scoreMap) {
+        //format: JOHN LELE(ISFJ)$RICHARD TONG(INFP)=0
+		float totalScore = 0;
 
-		float totalGroupScore = 0;
-
-		int countOfScores = groupScoresMap.size();
+		int countOfScores = scoreMap.size();
 
 		for (int i=0;i<countOfScores;i++) {
-			List groupScoresKeys = new ArrayList(groupScoresMap.keySet());
+			List scoresKeysList = new ArrayList(scoreMap.keySet());
 
-			String currentKey = (String) groupScoresKeys.get(i);
+			String currentKey = (String) scoresKeysList.get(i);
 			//current score
 
-			int currentScore =  (int) groupScoresMap.get(currentKey);
-			totalGroupScore += currentScore;
+			int currentScore =  (int) scoreMap.get(currentKey);
+            totalScore += currentScore;
 		}
 
-		float averageScoreOfGroup = totalGroupScore / countOfScores;
+		float averageScore = totalScore / countOfScores;
 
-		return averageScoreOfGroup;
+		return averageScore;
 	}
 
-	public static float getAverageFromArray(ArrayList<Float> arrayOfFloat) {
+	public static float getMeanFromFloatArray(ArrayList<Float> arrayOfFloat) {
 		float score = 0;
 		for (int i=0;i<arrayOfFloat.size();i++) {
 			score+=arrayOfFloat.get(i);
@@ -504,15 +504,15 @@ public class briggsMatch {
 	}
 
 
-	public static float standardDeviationFromMap(HashMap groupScoresMap) {
-		//array of all scores without names
+	public static float getStandardDeviationFromScoreMap(HashMap scoresMap) {
+		//format  JOHN LELE(ISFJ)$RICHARD TONG(INFP)=0
 
 		ArrayList<Integer> listOfScores = new ArrayList<>();
-		List groupScores = new ArrayList(groupScoresMap.keySet());
+		List groupScores = new ArrayList(scoresMap.keySet());
 
 		int countOfScores = groupScores.size();
 
-		float averageScoreOfGroup = getGroupAverageBriggsFromScoresMap(groupScoresMap);
+		float averageScoreOfGroup = getMeanBriggsScoreFromScoreMap(scoresMap);
 
 		ArrayList<Float> squaredValues = new ArrayList<Float>();
 
@@ -520,45 +520,44 @@ public class briggsMatch {
 		for (int i=0;i<countOfScores;i++) {
 			String currentKey = (String) groupScores.get(i);
 			//current score
-			int currentScore = (Integer) groupScoresMap.get(currentKey);
+			int currentScore = (Integer) scoresMap.get(currentKey);
 			Float currentSquared = (currentScore - averageScoreOfGroup) * (currentScore - averageScoreOfGroup);
 
 			squaredValues.add(currentSquared);
 		}
 
-		float squaredAverage = getAverageFromArray(squaredValues);
-		System.out.print(squaredAverage);System.out.print('\n');
+		float squaredAverage = getMeanFromFloatArray(squaredValues);
+
 		float standardDeviation = (float) Math.sqrt((double) squaredAverage);
-
-
 
 		return standardDeviation;
 	}
 
-	public static HashMap groupAssign(HashMap groupMap, int groupSize) {
+	public static HashMap groupAssign(HashMap popMap, int groupSize) {
 		HashMap finalGroupsMap = new HashMap();
 
-		List groupKeySet = new ArrayList(groupMap.keySet());
+		List popKeySet = new ArrayList(popMap.keySet());
 		//number of values
-		int countOfKeys = groupKeySet.size();
+		int countOfPopKeys = popKeySet.size();
 
 		//number of groups to have
-		int numberOfGroups = countOfKeys / groupSize;
+		int numberOfGroups = countOfPopKeys / groupSize;
 
 		//remainder after division - to add into groups
-		int remainder = countOfKeys - (numberOfGroups * groupSize);
+		int remainder = countOfPopKeys - (numberOfGroups * groupSize);
 
 		// find the total average of the entire list of people
-		float totalGroupAverage = groupBriggsAverageScore(groupMap);
+		float totalPopAverage = getPopBriggsMeanScoreByBriggsMap(popMap);
 
 		//get the hash of all individual paired scores of entire list of people
-		HashMap totalGroupScores = groupBrigggsPairScores(groupMap);
-		//System.out.print(totalGroupScores);
-
-		float standardDeviation = standardDeviationFromMap(totalGroupScores);
+		HashMap allPopScores = getPairBriggsScoresFromBriggsMap(popMap);
 
 
-		System.out.print(standardDeviation);
+		float standardDeviation = getStandardDeviationFromScoreMap(allPopScores);
+
+        System.out.print(totalPopAverage);
+        System.out.print('\n');
+        System.out.print(standardDeviation);
 
 
 

@@ -12,7 +12,7 @@ public class briggsMatch {
 	
 	public static String[] briggsList = {"INFP","ENFP","INFJ","ENFJ","INTJ","ENTJ","INTP","ENTP","ISFP","ESFP","ISTP","ESTP","ISFJ","ESFJ","ISTJ","ESTJ"};
 	public static JSONObject briggsJSON = new JSONObject();
-	
+
 	public static JSONObject briggsReturn(String briggs) {
 		/*https://i.pinimg.com/originals/c5/95/d7/c595d7e69ab2afa27ffb0a6f66ac125e.jpg
 		5 levels:
@@ -533,9 +533,8 @@ public class briggsMatch {
 		return standardDeviation;
 	}
 
-	public static HashMap groupAssign(HashMap popMap, int groupSize) {
-		HashMap finalGroupsMap = new HashMap();
-
+	public static HashMap getGroupSizesFromPopMap(HashMap popMap, int groupSize){
+		HashMap groupDimensionsMap = new HashMap();
 		List popKeySet = new ArrayList(popMap.keySet());
 		//number of values
 		int countOfPopKeys = popKeySet.size();
@@ -546,23 +545,102 @@ public class briggsMatch {
 		//remainder after division - to add into groups
 		int remainder = countOfPopKeys - (numberOfGroups * groupSize);
 
+		for (int i=numberOfGroups;i>=1;i--) {
+			int currentGroupSize = groupSize;
+			if (i==remainder) {
+				currentGroupSize++;
+				remainder--;
+
+			}
+			groupDimensionsMap.put(i,currentGroupSize);
+		}
+		return groupDimensionsMap;
+	}
+
+
+
+	public static HashMap groupAssign(HashMap popMap, int groupSize) {
+		/*if (groupSize <2 ){
+			throw new InvalidGroupSizeException();
+		}*/
+		HashMap finalGroupsMap = new HashMap();
+
+		HashMap groupSizesMap = getGroupSizesFromPopMap(popMap,groupSize);
+
+
 		// find the total average of the entire list of people
 		float totalPopAverage = getPopBriggsMeanScoreByBriggsMap(popMap);
 
 		//get the hash of all individual paired scores of entire list of people
 		HashMap allPopScores = getPairBriggsScoresFromBriggsMap(popMap);
 
-
+		//get standard deviation of pair scores for entire pop
 		float standardDeviation = getStandardDeviationFromScoreMap(allPopScores);
 
-        System.out.print(totalPopAverage);
-        System.out.print('\n');
-        System.out.print(standardDeviation);
+		//do the group matching
+
+		//tmp pop is popmap that we subtract from
+
+		List tmpPopKeySet = new ArrayList(popMap.keySet());
+		//number of values
+
+		//System.out.print(tmpPopKeySet.get((int) Math.floor(Math.random()*tmpPopKeySet.size())));
+		//while there are still people
+		while (tmpPopKeySet.size()>0) {
+			for (int i=1;i<=groupSizesMap.size();i++) {
+
+				int currentGroupSize = (int) groupSizesMap.get(i);
+
+				//System.out.print(tmpPopKeySet);
+				HashMap currentGroupMap = new HashMap();
+
+				while (currentGroupMap.size()<currentGroupSize) {
+					//get random entry from pop
+					double random = Math.random();
+					String currentKey = (String) tmpPopKeySet.get((int) Math.floor(random*tmpPopKeySet.size()));
+					String currentBriggs = (String) popMap.get(currentKey);
+
+					//add entry to current group
+					currentGroupMap.put(currentKey,currentBriggs);
+
+					//remove from tmppopmapkey set
+
+					tmpPopKeySet.remove(currentKey);
+
+				}
+				float currentGroupMeanScore = getPopBriggsMeanScoreByBriggsMap(currentGroupMap);
+				HashMap currentGroupMembersScoreMap = new HashMap();
+				currentGroupMembersScoreMap.put("Members",currentGroupMap);
+				currentGroupMembersScoreMap.put("Mean Score",currentGroupMeanScore);
+				finalGroupsMap.put(i,currentGroupMembersScoreMap);
 
 
+
+				//use getPopBriggsMeanScoreByBriggsMap to find average for that group
+			}
+		}
 
 
 		return finalGroupsMap;
+	}
+
+
+	public static float getMeanPopGroupScore (HashMap groupsMap){
+
+		float totalScore = 0;
+		List groupsMapKeySet = new ArrayList(groupsMap.keySet());
+
+		for (int i=0;i<groupsMapKeySet.size();i++) {
+			int currentGroupKey = (int) groupsMapKeySet.get(i);
+			HashMap currentGroupMap = (HashMap) groupsMap.get(currentGroupKey);
+			float currentGroupMeanScore = (float) currentGroupMap.get("Mean Score");
+			totalScore+=currentGroupMeanScore;
+		}
+
+		float meanScore = totalScore / groupsMapKeySet.size() ;
+
+		return meanScore;
+
 	}
 
 

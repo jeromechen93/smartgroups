@@ -533,6 +533,35 @@ public class briggsMatch {
 		return standardDeviation;
 	}
 
+	public static float getStandardDeviationFromPopGroupMap (HashMap popGroupMap) {
+        //format
+
+        ArrayList<Integer> listOfScores = new ArrayList<>();
+        List groupScores = new ArrayList(popGroupMap.keySet());
+
+        int countOfScores = groupScores.size();
+
+        float averageScoreOfGroup = getMeanBriggsScoreFromScoreMap(popGroupMap);
+
+        ArrayList<Float> squaredValues = new ArrayList<Float>();
+
+
+        for (int i=0;i<countOfScores;i++) {
+            String currentKey = (String) groupScores.get(i);
+            //current score
+            int currentScore = (Integer) popGroupMap.get(currentKey);
+            Float currentSquared = (currentScore - averageScoreOfGroup) * (currentScore - averageScoreOfGroup);
+
+            squaredValues.add(currentSquared);
+        }
+
+        float squaredAverage = getMeanFromFloatArray(squaredValues);
+
+        float standardDeviation = (float) Math.sqrt((double) squaredAverage);
+
+        return standardDeviation;
+    }
+
 	public static HashMap getGroupSizesFromPopMap(HashMap popMap, int groupSize){
 		HashMap groupDimensionsMap = new HashMap();
 		List popKeySet = new ArrayList(popMap.keySet());

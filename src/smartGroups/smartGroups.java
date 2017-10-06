@@ -132,8 +132,14 @@ public class smartGroups {
 
 		//System.out.print(briggsMatch.groupAssign(popMap,4));
 		HashMap randomPopMap = manualGeneratePopBriggsMap();
-		//HashMap randomPopMap = randomGeneratePopBriggsMap(36);
-		HashMap popGroupMap = briggsMatch.groupAssign(randomPopMap,4);
+		//HashMap randomPopMap = randomGeneratePopBriggsMap(100);
+		HashMap popGroupMap =  briggsMatch.groupAssign(randomPopMap, 4);
+        float popMean = briggsMatch.getPopBriggsMeanScoreByBriggsMap(randomPopMap);
+        float popGroupsMean = briggsMatch.getMeanPopGroupScore(popGroupMap);
+		while (6<popGroupsMean) {
+            popGroupMap = briggsMatch.groupAssign(randomPopMap, 4);
+			popGroupsMean = briggsMatch.getMeanPopGroupScore(popGroupMap);
+        }
 
 
 		System.out.print("Population Mean: ");
